@@ -123,21 +123,17 @@
                 body: JSON.stringify(payload)
             })
             .then(response => {
-                if(response.ok) {
-                    // Munculkan notif sesuai request
-                    alert("TER ABSEN"); 
-                    
-                    // Kunci input dan ubah tampilan tombol permanen
-                    namaInput.disabled = true;
-                    tombol.innerText = "✅ TER ABSEN";
-                    tombol.style.background = "#00ff88"; // Hijau neon
-                    tombol.style.color = "#09111e";
-                    tombol.style.borderColor = "#00ff88";
-                } else {
-                    alert("Gagal terhubung ke server.");
-                    tombol.disabled = false;
-                    tombol.innerText = "CLOCK-IN SEKARANG";
-                }
+                // Hapus if(response.ok) agar otomatis sukses saat fetch berhasil menembus CORS
+                
+                // Munculkan notif sesuai request
+                alert("TER ABSEN"); 
+                
+                // Kunci input dan ubah tampilan tombol permanen
+                namaInput.disabled = true;
+                tombol.innerText = "✅ TER ABSEN";
+                tombol.style.background = "#00ff88"; // Hijau neon
+                tombol.style.color = "#09111e";
+                tombol.style.borderColor = "#00ff88";
             })
             .catch(error => {
                 console.error('Error:', error);
