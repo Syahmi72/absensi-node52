@@ -66,10 +66,15 @@
             width: 90%;
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
-        button:hover {
+        button:hover:not(:disabled) {
             background: #00f0ff;
             color: #09111e;
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+        }
+        /* Style saat tombol dimatikan setelah berhasil absen */
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -80,20 +85,26 @@
         
         <input type="text" id="namaPegawai" placeholder="MASUKKAN NAMA ANDA">
         <br>
-        <button onclick="kirimAbsen()">CLOCK-IN SEKARANG</button>
+        <button id="btnAbsen" onclick="kirimAbsen()">CLOCK-IN SEKARANG</button>
     </div>
 
     <script>
         function kirimAbsen() {
-            const nama = document.getElementById('namaPegawai').value;
+            const namaInput = document.getElementById('namaPegawai');
+            const tombol = document.getElementById('btnAbsen');
+            const nama = namaInput.value;
             
             if (!nama) {
                 alert("Identitas tidak boleh kosong!");
                 return;
             }
 
+            // Ganti tombol jadi mode loading agar tidak diklik 2x
+            tombol.disabled = true;
+            tombol.innerText = "MENGIRIM...";
+
             // --- GANTI BAGIAN INI ---
-            const token = 'u5tid2yr50zi2izborkp'; 
+            const token = 'MASUKKAN_ACCESS_TOKEN_KAMU_DISINI'; 
             // ------------------------
 
             const url = `https://thingsboard.cloud/api/v1/${token}/telemetry`;
@@ -107,19 +118,33 @@
             fetch(url, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'text/plain' // <-- INI YANG DIUBAH
+                    'Content-Type': 'text/plain' // Tetap text/plain buat hindari CORS
                 },
                 body: JSON.stringify(payload)
             })
             .then(response => {
                 if(response.ok) {
-                    alert("Akses Diterima: Data kehadiran atas nama " + nama + " berhasil terkirim ke sistem!");
-                    document.getElementById('namaPegawai').value = ''; // Kosongkan input setelah sukses
+                    // Munculkan notif sesuai request
+                    alert("TER ABSEN"); 
+                    
+                    // Kunci input dan ubah tampilan tombol permanen
+                    namaInput.disabled = true;
+                    tombol.innerText = "✅ TER ABSEN";
+                    tombol.style.background = "#00ff88"; // Hijau neon
+                    tombol.style.color = "#09111e";
+                    tombol.style.borderColor = "#00ff88";
                 } else {
-                    alert("Akses Ditolak: Gagal terhubung ke server utama.");
+                    alert("Gagal terhubung ke server.");
+                    tombol.disabled = false;
+                    tombol.innerText = "CLOCK-IN SEKARANG";
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Terjadi kesalahan jaringan.");
+                tombol.disabled = false;
+                tombol.innerText = "CLOCK-IN SEKARANG";
+            });
         }
     </script>
 </body>
